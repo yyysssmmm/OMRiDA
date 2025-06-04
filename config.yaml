@@ -1,0 +1,31 @@
+# config.yaml
+
+# 데이터 경로
+data:
+  image_dir: "data/CROHME/data_crohme/train/img"
+  caption_path: "data/CROHME/data_crohme/train/caption.txt"
+  resize: [128, 512]
+
+# 학습 설정
+training:
+  batch_size: 16
+  epochs: 50
+  learning_rate: 0.001
+  max_seq_len: 100
+  optimizer: "adam"
+  scheduler: "none"
+  grad_clip: 5.0
+  lambda_match: 0.5
+  early_stop_patience: 15
+
+# 모델 설정
+model:
+  encoder_out_channels: 512
+  decoder_hidden_dim: 256
+  attention_dim: 256
+
+# 기타
+misc:
+  seed: 42
+  save_path: "checkpoints/dla_model.pt"
+  device: "cuda"
