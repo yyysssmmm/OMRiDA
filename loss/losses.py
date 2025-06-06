@@ -18,7 +18,7 @@ class DualLoss(nn.Module):
                 logits_h, targets_h,        # (B, T, V), (B, T)
                 logits_p, targets_p,        # (B, T, V), (B, T)
                 logits_up=None, targets_up=None,  # (B, T, V), (B, T)
-                context_h=None, context_p=None    # (B, T, C), (B, T, C)
+                context_h=None, context_p=None    # (B, T, C),d (B, T, C)
                ):
         """
         logits_*: unnormalized decoder outputs (B, T, V)
@@ -30,31 +30,39 @@ class DualLoss(nn.Module):
         # Decoder Loss - Handwritten
         if logits_h is not None and targets_h is not None:
             B, T, V = logits_h.size()
-            loss_h = self.ce_loss(logits_h.view(B * T, V), targets_h.view(B * T))
+            targets_h = targets_h[:, 1:]
+            loss_h = self.ce_loss(logits_h.reshape(-1, V), targets_h.reshape(-1))
             loss_total += loss_h
 
         # Decoder Loss - Paired Printed
         if logits_p is not None and targets_p is not None:
             B, T, V = logits_p.size()
-            loss_p = self.ce_loss(logits_p.view(B * T, V), targets_p.view(B * T))
+            targets_p = targets_p[:, 1:]
+            loss_p = self.ce_loss(logits_p.reshape(-1, V), targets_p.reshape(-1))
             loss_total += loss_p
 
-        # Decoder Loss - Unpaired Printed (optional)
+        # Decoder Loss - Unpaired PME
         if logits_up is not None and targets_up is not None:
             B, T, V = logits_up.size()
-            loss_up = self.ce_loss(logits_up.view(B * T, V), targets_up.view(B * T))
+            targets_up = targets_up[:, 1:]
+            loss_up = self.ce_loss(logits_up.reshape(-1, V), targets_up.reshape(-1))
             loss_total += loss_up
 
-        # Matching Loss - Context alignment
+        else:
+            loss_up = torch.tensor(0.0)
+
+        # Context Matching Loss
         if context_h is not None and context_p is not None:
+            assert context_h.shape == context_p.shape
             match_loss = self.mse_loss(context_h, context_p)
             loss_total += self.match_weight * match_loss
         else:
-            match_loss = torch.tensor(0.0, device=logits_h.device if logits_h is not None else 'cpu')
+            match_loss = torch.tensor(0.0)
 
         return loss_total, {
-            "loss_h": loss_h.item() if logits_h is not None else 0.0,
-            "loss_p": loss_p.item() if logits_p is not None else 0.0,
-            "loss_up": loss_up.item() if logits_up is not None else 0.0,
-            "match_loss": match_loss.item()
+            "loss_h": loss_h.item(),
+            "loss_p": loss_p.item(),
+            "loss_up": loss_up.item(),
+            "match_loss": match_loss.item(),
+            "total": loss_total.item()
         }

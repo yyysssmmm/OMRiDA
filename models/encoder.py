@@ -6,7 +6,7 @@ from torchvision.models import densenet121, DenseNet121_Weights
 class DenseNetEncoder(nn.Module):
     """
     DenseNet-based Encoder for offline HMER/PMER image inputs.
-    
+
     This module extracts spatial feature maps from input images using DenseNet121.
     The final classifier layer is removed, and the convolutional backbone is used to 
     preserve spatial resolution.
@@ -34,6 +34,19 @@ class DenseNetEncoder(nn.Module):
 
         # Optional: project feature channels to desired out_channels
         self.project = nn.Conv2d(1024, out_channels, kernel_size=1)
+
+        # ✅ 가중치 초기화
+        self._init_weights()
+
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.ones_(m.weight)
+                nn.init.zeros_(m.bias)
 
     def forward(self, x):
         x = self.backbone(x)            # Shape: (B, 1024, H', W')
