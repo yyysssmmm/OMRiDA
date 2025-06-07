@@ -44,9 +44,11 @@ SOS_ID = vocab.token2idx["<sos>"]
 EOS_ID = vocab.token2idx["<eos>"]
 
 model_config = config["model"]
-model = DLAModel(vocab_size=len(vocab), model_config=model_config).to(DEVICE)
-model.load_state_dict(torch.load(CHECKPOINT_PATH, map_location=DEVICE))
-model.eval()
+unpaired_model = DLAModel(vocab_size=len(vocab), model_config=model_config, is_paired=False).to(DEVICE)
+
+checkpoint = torch.load(CHECKPOINT_PATH, map_location=DEVICE)
+unpaired_model.load_state_dict(checkpoint["unpaired_model"])
+unpaired_model.eval()
 
 # ✅ 평가 함수 정의
 def evaluate(img_dir, caption_path, img_ext, mode="hme"):
@@ -74,10 +76,9 @@ def evaluate(img_dir, caption_path, img_ext, mode="hme"):
             imgs = batch["image"].to(DEVICE)
             tgt_ids = batch["formula"]
 
-            out_ids = model.predict_hme(imgs, sos_idx=SOS_ID, eos_idx=EOS_ID, max_len=MAX_LEN) if mode == "hme" \
-                else model.predict_pme(imgs, sos_idx=SOS_ID, eos_idx=EOS_ID, max_len=MAX_LEN)
+            pred_ids = unpaired_model.predict(imgs, max_len=MAX_LEN, sos_idx=SOS_ID, eos_idx=EOS_ID)
 
-            pred_tokens = decode_sequence(out_ids, vocab)
+            pred_tokens = decode_sequence(pred_ids, vocab)
             target_tokens = decode_sequence(tgt_ids, vocab)
 
             preds.extend(pred_tokens)
@@ -98,6 +99,7 @@ def evaluate(img_dir, caption_path, img_ext, mode="hme"):
 # ✅ 전체 평가
 result_log = {"hme": {}, "pme": {}}
 
+# hme
 for year in TEST_YEARS:
     img_dir = f"data/CROHME/data_crohme/{year}/img"
     caption_path = f"data/CROHME/data_crohme/{year}/caption.txt"
@@ -112,6 +114,7 @@ for year in TEST_YEARS:
     for k, v in result_log["hme"][year].items():
         print(f"  {k}: {v}")
 
+# pme
 for year in TEST_YEARS:
     img_dir = f"data/CROHME/data_crohme/{year}/pme_img"
     caption_path = f"data/CROHME/data_crohme/{year}/caption.txt"

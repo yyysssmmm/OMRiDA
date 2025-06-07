@@ -1,48 +1,48 @@
 {
-    "pme": {
-        "2014": {
-            "exprate_0": 0.0,
-            "exprate_1": 0.0,
-            "exprate_2": 0.0,
-            "exprate_3": 0.0,
-            "cer": 0.8265
-        },
-        "2016": {
-            "exprate_0": 0.0,
-            "exprate_1": 0.0,
-            "exprate_2": 0.0,
-            "exprate_3": 0.0,
-            "cer": 0.7917
-        },
-        "2019": {
-            "exprate_0": 0.0,
-            "exprate_1": 0.0,
-            "exprate_2": 0.0,
-            "exprate_3": 0.0,
-            "cer": 0.7928
-        }
-    },
     "hme": {
         "2014": {
             "exprate_0": 0.0,
             "exprate_1": 0.0,
             "exprate_2": 0.0,
             "exprate_3": 0.0,
-            "cer": 0.787
+            "cer": 1.2965
         },
         "2016": {
             "exprate_0": 0.0,
             "exprate_1": 0.0,
             "exprate_2": 0.0,
             "exprate_3": 0.0,
-            "cer": 0.7704
+            "cer": 1.1496
         },
         "2019": {
             "exprate_0": 0.0,
             "exprate_1": 0.0,
             "exprate_2": 0.0,
             "exprate_3": 0.0,
-            "cer": 0.7644
+            "cer": 1.2078
+        }
+    },
+    "pme": {
+        "2014": {
+            "exprate_0": 0.0,
+            "exprate_1": 0.0,
+            "exprate_2": 0.0,
+            "exprate_3": 0.0,
+            "cer": 1.3308
+        },
+        "2016": {
+            "exprate_0": 0.0,
+            "exprate_1": 0.0,
+            "exprate_2": 0.0,
+            "exprate_3": 0.0,
+            "cer": 1.1746
+        },
+        "2019": {
+            "exprate_0": 0.0,
+            "exprate_1": 0.0,
+            "exprate_2": 0.0,
+            "exprate_3": 0.0,
+            "cer": 1.2387
         }
     }
 }

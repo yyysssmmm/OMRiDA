@@ -24,7 +24,7 @@ training:
   epochs: 100
   learning_rate: 1.0
   match_weight: 1.0
-  optimizer: "adadelta"         # ← ✅ 이제 train.py에서 이 값 사용
+  optimizer: "adadelta"         
   grad_clip: 5.0
   early_stop_patience: 5
   ignore_idx: 0
@@ -32,7 +32,7 @@ training:
   scheduler:
     use: true
     type: "StepLR"
-    step_size: 30
+    step_size: 10
     gamma: 0.5
 
 # ✅ 테스트 설정
@@ -45,4 +45,4 @@ testing:
 misc:
   seed: 42
   device: "mps"   # "cuda" / "cpu"
-  checkpoint_path: "runs/dla_baseline_bs8_lr1.0_match1.0_schedStepLR30_0.5_seed42/checkpoints/best_model.pth"
+  checkpoint_path: "runs/dla_baseline_bs8_lr1.0_match1.0_schedStepLR10_0.5_seed42/checkpoints/best_model.pth"
