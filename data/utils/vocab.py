@@ -36,7 +36,7 @@ class Vocab:
         with open(path, 'w', encoding='latin1') as f:
             for token in sorted(self.idx2token):
                 f.write(token + '\n')
-                
+
     @classmethod
     def load_from_txt(cls, path: Path) -> "Vocab":   # ✅ 여기 안으로 넣기!
         vocab = cls()

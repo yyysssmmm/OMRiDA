@@ -4,7 +4,7 @@ def decode_sequence(token_ids, vocab):
         tokens = []
         for idx in seq:
             token = vocab.idx2token[int(idx)]
-            if token == "<pad>":
+            if token in ("<pad>", "<sos>"):
                 continue
             if token == "<eos>":
                 break

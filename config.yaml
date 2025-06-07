@@ -1,31 +1,48 @@
-# # config.yaml
+experiment_name: "dla_baseline"
 
-# # 데이터 경로
-# data:
-#   image_dir: "data/CROHME/data_crohme/train/img"
-#   caption_path: "data/CROHME/data_crohme/train/caption.txt"
-#   resize: [128, 512]
+# ✅ 데이터 경로
+data:
+  vocab: "data/vocab/im2latex_vocab.txt"
+  paired:
+    hme_img: "data/CROHME/data_crohme/train/img"
+    pme_img: "data/CROHME/data_crohme/train/pme_img"
+    caption: "data/CROHME/data_crohme/train/caption.txt"
+  unpaired:
+    pme_img: "data/IM2LATEX/img/pme_unpaired"
+    caption: "data/IM2LATEX/caption/unpaired_caption.txt"
 
-# # 학습 설정
-# training:
-#   batch_size: 16
-#   epochs: 50
-#   learning_rate: 0.001
-#   max_seq_len: 100
-#   optimizer: "adam"
-#   scheduler: "none"
-#   grad_clip: 5.0
-#   lambda_match: 0.5
-#   early_stop_patience: 15
+# ✅ 모델 하이퍼파라미터
+model:
+  emb_dim: 64
+  encoder_out_channels: 512
+  decoder_hidden_dim: 256
+  attention_dim: 256
 
-# # 모델 설정
-# model:
-#   encoder_out_channels: 512
-#   decoder_hidden_dim: 256
-#   attention_dim: 256
+# ✅ 학습 설정
+training:
+  batch_size: 8
+  epochs: 100
+  learning_rate: 1.0
+  match_weight: 1.0
+  optimizer: "adadelta"         # ← ✅ 이제 train.py에서 이 값 사용
+  grad_clip: 5.0
+  early_stop_patience: 5
+  ignore_idx: 0
 
-# # 기타
-# misc:
-#   seed: 42
-#   save_path: "checkpoints/dla_model.pt"
-#   device: "cuda"
+  scheduler:
+    use: true
+    type: "StepLR"
+    step_size: 30
+    gamma: 0.5
+
+# ✅ 테스트 설정
+testing:
+  batch_size: 1
+  years: ["2014", "2016", "2019"]
+  max_len: 150
+
+# ✅ 기타 설정
+misc:
+  seed: 42
+  device: "mps"   # "cuda" / "cpu"
+  checkpoint_path: "runs/dla_baseline_bs8_lr1.0_match1.0_schedStepLR30_0.5_seed42/checkpoints/best_model.pth"

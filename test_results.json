@@ -1,0 +1,48 @@
+{
+    "pme": {
+        "2014": {
+            "exprate_0": 0.0,
+            "exprate_1": 0.0,
+            "exprate_2": 0.0,
+            "exprate_3": 0.0,
+            "cer": 0.8265
+        },
+        "2016": {
+            "exprate_0": 0.0,
+            "exprate_1": 0.0,
+            "exprate_2": 0.0,
+            "exprate_3": 0.0,
+            "cer": 0.7917
+        },
+        "2019": {
+            "exprate_0": 0.0,
+            "exprate_1": 0.0,
+            "exprate_2": 0.0,
+            "exprate_3": 0.0,
+            "cer": 0.7928
+        }
+    },
+    "hme": {
+        "2014": {
+            "exprate_0": 0.0,
+            "exprate_1": 0.0,
+            "exprate_2": 0.0,
+            "exprate_3": 0.0,
+            "cer": 0.787
+        },
+        "2016": {
+            "exprate_0": 0.0,
+            "exprate_1": 0.0,
+            "exprate_2": 0.0,
+            "exprate_3": 0.0,
+            "cer": 0.7704
+        },
+        "2019": {
+            "exprate_0": 0.0,
+            "exprate_1": 0.0,
+            "exprate_2": 0.0,
+            "exprate_3": 0.0,
+            "cer": 0.7644
+        }
+    }
+}
