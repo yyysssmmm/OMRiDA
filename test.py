@@ -70,31 +70,35 @@ def evaluate(img_dir, caption_path, img_ext, mode="hme"):
     )
 
     preds, targets = [], []
+    debug_lines = []
 
     with torch.no_grad():
         for batch in tqdm(dataloader, desc=f"{mode.upper()} Eval"):
             imgs = batch["image"].to(DEVICE)
             tgt_ids = batch["formula"]
 
-            pred_ids = unpaired_model.predict(imgs, max_len=MAX_LEN, sos_idx=SOS_ID, eos_idx=EOS_ID)
+            pred_ids_batch = unpaired_model.predict(imgs, max_len=MAX_LEN, sos_idx=SOS_ID, eos_idx=EOS_ID)
+            pred_tokens_batch = decode_sequence(pred_ids_batch, vocab)
+            target_tokens_batch = decode_sequence(tgt_ids, vocab)
 
-            pred_tokens = decode_sequence(pred_ids, vocab)
-            target_tokens = decode_sequence(tgt_ids, vocab)
+            preds.extend(pred_tokens_batch)
+            targets.extend(target_tokens_batch)
 
-            preds.extend(pred_tokens)
-            targets.extend(target_tokens)
+            # ✅ 배치 단위로 결과 저장
+            for pred, target in zip(pred_tokens_batch, target_tokens_batch):
+                debug_lines.append(f"[GT]   {' '.join(target)}")
+                debug_lines.append(f"[PRD]  {' '.join(pred)}")
+                debug_lines.append("---")
 
     # ✅ 예측 결과 저장
     year = Path(img_dir).parts[-2]
     debug_path = f"preds/pred_target_pairs_{mode}_{year}.txt"
     with open(debug_path, "w", encoding="utf-8") as f:
-        for p, t in zip(preds, targets):
-            f.write(f"[GT]   {' '.join(t)}\n")
-            f.write(f"[PRD]  {' '.join(p)}\n")
-            f.write("---\n")
+        f.write("\n".join(debug_lines))
     print(f"📝 {mode.upper()} {year} 결과 저장됨: {debug_path}")
 
     return preds, targets
+
 
 # ✅ 전체 평가
 result_log = {"hme": {}, "pme": {}}
