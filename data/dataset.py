@@ -58,3 +58,54 @@ class FormulaDataset(Dataset):
             "image": image,
             "formula": formula_tensor
         }
+
+class PairedFormulaDataset(Dataset):
+    def __init__(self, hme_dir, pme_dir, caption_path, transform_hme, transform_pme, vocab=None):
+        self.hme_dir = Path(hme_dir)
+        self.pme_dir = Path(pme_dir)
+        self.transform_hme = transform_hme
+        self.transform_pme = transform_pme
+        self.vocab = vocab
+
+        self.samples = []
+        with open(caption_path, "r") as f:
+            for line in f:
+                img_name, formula = line.strip().split("\t")
+                self.samples.append((img_name, formula))
+
+    def __len__(self):
+        return len(self.samples)
+
+    def _open_and_convert(self, path: Path):
+        image = Image.open(path)
+
+        # 🛠 경고 방지 및 안정적인 채널 처리
+        if image.mode == "P":
+            image = image.convert("RGBA")
+        image = image.convert("RGB")
+
+        return image
+
+    def __getitem__(self, idx):
+        img_name, formula = self.samples[idx]
+
+        img_hme_path = self.hme_dir / img_name
+        img_pme_path = self.pme_dir / img_name
+
+        img_hme = self._open_and_convert(img_hme_path)
+        img_pme = self._open_and_convert(img_pme_path)
+
+        if self.transform_hme:
+            img_hme = self.transform_hme(img_hme)
+        if self.transform_pme:
+            img_pme = self.transform_pme(img_pme)
+
+        token_ids = self.vocab.encode(formula)
+        formula_tensor = torch.tensor(token_ids, dtype=torch.long)
+
+        return {
+            "img_hme": img_hme,
+            "img_pme": img_pme,
+            "formula": formula_tensor
+        }
+

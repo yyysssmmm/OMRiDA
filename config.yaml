@@ -2,11 +2,11 @@ experiment_name: "dla_baseline"
 
 # ✅ 데이터 경로
 data:
-  vocab: "data/vocab/im2latex_vocab.txt"
+  vocab: "data/vocab/all_vocab.txt"
   paired:
-    hme_img: "data/CROHME/data_crohme/train/img"
-    pme_img: "data/CROHME/data_crohme/train/pme_img"
-    caption: "data/CROHME/data_crohme/train/caption.txt"
+    hme_img: "data/paired_CROHME+IM2LATEX/hme"
+    pme_img: "data/paired_CROHME+IM2LATEX/pme"
+    caption: "data/paired_CROHME+IM2LATEX/caption.txt"
   unpaired:
     pme_img: "data/IM2LATEX/img/pme_unpaired"
     caption: "data/IM2LATEX/caption/unpaired_caption.txt"
@@ -20,9 +20,9 @@ model:
 
 # ✅ 학습 설정
 training:
-  batch_size: 8
+  batch_size: 4
   epochs: 100
-  learning_rate: 1.0
+  learning_rate: 0.0001
   match_weight: 1.0
   optimizer: "adadelta"         
   grad_clip: 5.0

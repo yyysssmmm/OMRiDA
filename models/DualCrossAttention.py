@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+# 2-D Cross attention
 class CrossAttention(nn.Module):
     """
     Generalized Scaled Dot-Product Cross Attention
@@ -27,7 +28,19 @@ class CrossAttention(nn.Module):
         # ⚠️ Resample enc2_feats to match spatial size of enc1_feats
         if (H1, W1) != (H2, W2):
             enc2_feats = self.resample_conv(enc2_feats)
-            enc2_feats = F.adaptive_avg_pool2d(enc2_feats, output_size=(H1, W1))
+
+            # ✅ 디바이스 확인
+            device_type = enc2_feats.device.type
+
+            if device_type == 'mps':
+                # MPS에선 adaptive_avg_pool2d가 크기 제약 있을 수 있음
+                if (H2 >= H1 and W2 >= W1) or (H2 <= H1 and W2 <= W1):
+                    enc2_feats = F.adaptive_avg_pool2d(enc2_feats, output_size=(H1, W1))
+                else:
+                    enc2_feats = F.interpolate(enc2_feats, size=(H1, W1), mode='bilinear', align_corners=False)
+            else:
+                # CUDA, CPU에선 안전하게 adaptive 사용
+                enc2_feats = F.adaptive_avg_pool2d(enc2_feats, output_size=(H1, W1))
 
         query = self.query_proj(enc1_feats).view(B, -1, H1 * W1).transpose(1, 2)   # (B, H1*W1, D)
         key   = self.key_proj(enc2_feats).view(B, -1, H1 * W1)                     # (B, D, H1*W1)

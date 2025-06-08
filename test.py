@@ -93,7 +93,7 @@ def evaluate(img_dir, caption_path, img_ext, mode="hme"):
     # ✅ 예측 결과 저장
     year = Path(img_dir).parts[-2]
     debug_path = f"preds/pred_target_pairs_{mode}_{year}.txt"
-    with open(debug_path, "w", encoding="utf-8") as f:
+    with open(debug_path, "w", encoding="latin1") as f:
         f.write("\n".join(debug_lines))
     print(f"📝 {mode.upper()} {year} 결과 저장됨: {debug_path}")
 
