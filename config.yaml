@@ -4,12 +4,12 @@ experiment_name: "dla_baseline"
 data:
   vocab: "data/vocab/all_vocab.txt"
   paired:
-    hme_img: "data/paired_CROHME+IM2LATEX/hme"
-    pme_img: "data/paired_CROHME+IM2LATEX/pme"
-    caption: "data/paired_CROHME+IM2LATEX/caption.txt"
+    hme_img: "data/preprocessed/train/paired/crohme/hme"
+    pme_img: "data/preprocessed/train/paired/crohme/pme"
+    caption: "data/preprocessed/train/paired/crohme/caption.txt"
   unpaired:
-    pme_img: "data/IM2LATEX/img/pme_unpaired"
-    caption: "data/IM2LATEX/caption/unpaired_caption.txt"
+    pme_img: "data/preprocessed/train/paired/im2latex/pme"
+    caption: "data/preprocessed/train/paired/im2latex/caption.txt"
 
 # ✅ 모델 하이퍼파라미터
 model:
@@ -20,9 +20,9 @@ model:
 
 # ✅ 학습 설정
 training:
-  batch_size: 4
+  batch_size: 1
   epochs: 100
-  learning_rate: 0.0001
+  learning_rate: 0.1
   match_weight: 1.0
   optimizer: "adadelta"         
   grad_clip: 5.0
@@ -35,10 +35,27 @@ training:
     step_size: 10
     gamma: 0.5
 
+# ✅ 이미지 전처리 설정
+transforms:
+  paired_hme:
+    target_size: [222, 1158] # width, height 순서가 아니라 height, width 순서임에 유의 
+    mean: [0.0679]
+    std: [0.2503]
+
+  paired_pme:
+    target_size: [64, 331]
+    mean: [0.8473]
+    std: [0.3539]
+
+  unpaired:
+    target_size: [2339, 1654]
+    mean: [0.9994]
+    std: [0.0239]
+
+
 # ✅ 테스트 설정
 testing:
   batch_size: 1
-  years: ["2014", "2016", "2019"]
   max_len: 150
 
 # ✅ 기타 설정

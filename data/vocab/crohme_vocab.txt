@@ -41,7 +41,6 @@ V
 X
 Y
 [
-\
 \Delta
 \Pi
 \alpha
@@ -55,6 +54,7 @@ Y
 \frac
 \gamma
 \geq
+\in
 \infty
 \int
 \lambda
@@ -71,6 +71,7 @@ Y
 \prime
 \rightarrow
 \sigma
+\sin
 \sqrt
 \sum
 \tan
@@ -90,7 +91,6 @@ f
 g
 h
 i
-in
 j
 k
 l

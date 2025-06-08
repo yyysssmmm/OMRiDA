@@ -10,7 +10,7 @@ def tokenize_formula(formula):
     for tok in tokens:
         chk = 0
         for sym in ["cm", "mm", "pt", "in", "ex", "em"]:
-            if tok[-2:] == sym:
+            if (tok[-2:] == sym) and tok[-3].isdigit(): 
                 num, _ = tok.split(sym)
                 num = ' '.join(num).split()
                 ans.extend(num)
@@ -91,6 +91,7 @@ if __name__ == "__main__":
     im2latex_caption_dir = base_dir / "IM2LATEX/caption"
     paired_caption_path = base_dir / "paired_CROHME+IM2LATEX/caption.txt"
     unpaired_caption_path = base_dir / "IM2LATEX/caption/unpaired_caption.txt"
+    paired_IM2LATEX_caption_path = base_dir / "IM2LATEX/caption/hme_caption.txt"
     vocab_dir = base_dir / "vocab"
 
     all_formulas = []
@@ -110,13 +111,13 @@ if __name__ == "__main__":
     # print(f" - tokens: {sorted(crohme_vocab.idx2token)}\n")
     all_formulas += crohme_formulas  
 
-    # ✅ IM2LATEX paired vocab
+    # ✅ IM2LATEX vocab
     caption_path = im2latex_caption_dir / "whole_caption.txt"
     im2latex_formulas = load_caption_formulas(caption_path)
     im2latex_vocab = Vocab()
     im2latex_vocab.build_vocab(im2latex_formulas)
     im2latex_vocab.save_to_txt(vocab_dir / "im2latex_vocab.txt")
-    print("📗 IM2LATEX Paired Vocabulary")
+    print("📗 IM2LATEX Vocabulary")
     print(f" - Size: {len(im2latex_vocab)}\n")
     # print(f" - tokens: {sorted(im2latex_vocab.idx2token)}\n")
     all_formulas += im2latex_formulas  
@@ -127,12 +128,25 @@ if __name__ == "__main__":
         paired_vocab = Vocab()
         paired_vocab.build_vocab(paired_formulas)
         paired_vocab.save_to_txt(vocab_dir / "paired_vocab.txt")
-        print("📙 PAIRED Vocabulary")
+        print("📙 PAIRED (CROHME + IM2LATEX) Vocabulary")
         print(f" - Size: {len(paired_vocab)}\n")
         # print(f" - tokens: {sorted(paired_vocab.idx2token)}\n")
         all_formulas += paired_formulas 
     else:
         print("⚠️ PAIRED caption.txt가 존재하지 않습니다.\n")
+
+    # ✅ IM2LATEX PAIRED vocab
+    if paired_caption_path.exists():
+        paired_formulas = load_caption_formulas(paired_IM2LATEX_caption_path)
+        paired_vocab = Vocab()
+        paired_vocab.build_vocab(paired_formulas)
+        paired_vocab.save_to_txt(vocab_dir / "IM2LATEX_paired_vocab.txt")
+        print("📙 PAIRED (IM2LATEX) Vocabulary")
+        print(f" - Size: {len(paired_vocab)}\n")
+        # print(f" - tokens: {sorted(paired_vocab.idx2token)}\n")
+        all_formulas += paired_formulas 
+    else:
+        print("⚠️ IM2LATEX PAIRED caption.txt가 존재하지 않습니다.\n")
 
     # ✅ IM2LATEX UNPAIRED vocab
     if unpaired_caption_path.exists():

@@ -67,9 +67,9 @@ vocab = Vocab.load_from_txt(Path(config["data"]["vocab"]))
 vocab_size = len(vocab)
 
 # ✅ transform
-hme_paired_transform = get_formula_transform("CROHME+IM2LATEX_hme")
-pme_paired_transform = get_formula_transform("CROHME+IM2LATEX_pme")
-pme_unpaired_transform = get_formula_transform("unpaired_pme")
+hme_paired_transform = get_formula_transform("paired_hme", config["transforms"])
+pme_paired_transform = get_formula_transform("paired_pme", config["transforms"])
+unpaired_transform = get_formula_transform("unpaired", config["transforms"])
 
 # ✅ Dataset
 paired_caption_path = config["data"]["paired"]["caption"]
@@ -79,12 +79,13 @@ paired_dataset = PairedFormulaDataset(
     caption_path=paired_caption_path,
     transform_hme=hme_paired_transform,
     transform_pme=pme_paired_transform,
+    image_exts=["bmp", "png"],
     vocab=vocab
 )
 unpaired_dataset = FormulaDataset(
     image_dir=config["data"]["unpaired"]["pme_img"],
     caption_path=config["data"]["unpaired"]["caption"],
-    transform=pme_unpaired_transform,
+    transform=unpaired_transform,
     image_ext="png",
     vocab=vocab
 )

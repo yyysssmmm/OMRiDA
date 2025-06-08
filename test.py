@@ -30,7 +30,7 @@ set_seed(config["misc"]["seed"])
 IGNORE_IDX = config["training"]["ignore_idx"]
 BATCH_SIZE = config["testing"].get("batch_size", 1)
 MAX_LEN = config["testing"].get("max_len", 150)
-TEST_YEARS = config["testing"].get("years", ["2014", "2016", "2019"])
+TEST_YEARS = ["2014", "2016", "2019"]
 CHECKPOINT_PATH = config["misc"]["checkpoint_path"]
 VOCAB_PATH = config["data"]["vocab"]
 DEVICE = torch.device(config["misc"]["device"] if torch.backends.mps.is_available() or torch.cuda.is_available() else "cpu")
@@ -54,7 +54,7 @@ unpaired_model.eval()
 def evaluate(img_dir, caption_path, img_ext, mode="hme"):
     assert mode in ["hme", "pme"], f"❌ Invalid mode: {mode}"
 
-    transform = get_formula_transform("crohme_hme" if mode == "hme" else "crohme_pme")
+    transform = get_formula_transform("paired_hme" if mode == "hme" else "paired_pme", config["transforms"])
     dataset = FormulaDataset(
         image_dir=img_dir,
         caption_path=caption_path,
@@ -84,54 +84,66 @@ def evaluate(img_dir, caption_path, img_ext, mode="hme"):
             preds.extend(pred_tokens_batch)
             targets.extend(target_tokens_batch)
 
-            # ✅ 배치 단위로 결과 저장
             for pred, target in zip(pred_tokens_batch, target_tokens_batch):
                 debug_lines.append(f"[GT]   {' '.join(target)}")
                 debug_lines.append(f"[PRD]  {' '.join(pred)}")
                 debug_lines.append("---")
 
-    # ✅ 예측 결과 저장
     year = Path(img_dir).parts[-2]
     debug_path = f"preds/pred_target_pairs_{mode}_{year}.txt"
     with open(debug_path, "w", encoding="latin1") as f:
         f.write("\n".join(debug_lines))
-    print(f"📝 {mode.upper()} {year} 결과 저장됨: {debug_path}")
+    print(f"📄 {mode.upper()} {year} 결과 저장됨: {debug_path}")
 
     return preds, targets
 
+# ✅ 결과 출력 함수
+def print_result_section(title: str, result_dict: dict):
+    print(f"\n📊 {title}")
+    for key, val in result_dict.items():
+        print(f"  {key}: {val}")
 
 # ✅ 전체 평가
-result_log = {"hme": {}, "pme": {}}
+result_log = {"CROHME": {"hme": {}, "pme": {}}, "IM2LATEX": {"pme":{}}}
 
-# hme
+# hme 평가
 for year in TEST_YEARS:
-    img_dir = f"data/CROHME/data_crohme/{year}/img"
-    caption_path = f"data/CROHME/data_crohme/{year}/caption.txt"
+    img_dir = f"data/preprocessed/test/hme/crohme/{year}/hme_img"
+    caption_path = f"data/preprocessed/test/hme/crohme/{year}/caption.txt"
     preds, targets = evaluate(img_dir, caption_path, img_ext="bmp", mode="hme")
 
-    result_log["hme"][year] = {
+    result_log["CROHME"]["hme"][year] = {
         f"exprate_{k}": round(exprate_k(preds, targets, k), 4) for k in range(4)
     }
-    result_log["hme"][year]["cer"] = round(cer(preds, targets), 4)
+    result_log["CROHME"]["hme"][year]["cer"] = round(cer(preds, targets), 4)
 
-    print(f"\n📘 HME Results {year}:")
-    for k, v in result_log["hme"][year].items():
-        print(f"  {k}: {v}")
-
-# pme
+# pme 평가
 for year in TEST_YEARS:
-    img_dir = f"data/CROHME/data_crohme/{year}/pme_img"
-    caption_path = f"data/CROHME/data_crohme/{year}/caption.txt"
+    img_dir = f"data/preprocessed/test/pme/crohme/{year}/pme_img"
+    caption_path = f"data/preprocessed/test/pme/crohme/{year}/caption.txt"
     preds, targets = evaluate(img_dir, caption_path, img_ext="png", mode="pme")
 
-    result_log["pme"][year] = {
+    result_log["CROHME"]["pme"][year] = {
         f"exprate_{k}": round(exprate_k(preds, targets, k), 4) for k in range(4)
     }
-    result_log["pme"][year]["cer"] = round(cer(preds, targets), 4)
+    result_log["CROHME"]["pme"][year]["cer"] = round(cer(preds, targets), 4)
 
-    print(f"\n📗 PME Results {year}:")
-    for k, v in result_log["pme"][year].items():
-        print(f"  {k}: {v}")
+# im2latex 평가
+img_dir = f"data/preprocessed/test/pme/im2latex/img"
+caption_path = f"data/preprocessed/test/pme/im2latex/caption.txt"
+preds, targets = evaluate(img_dir, caption_path, img_ext="png", mode="pme")
+
+result_log["IM2LATEX"]["pme"] = {
+    f"exprate_{k}": round(exprate_k(preds, targets, k), 4) for k in range(4)
+}
+result_log["IM2LATEX"]["pme"]["cer"] = round(cer(preds, targets), 4)
+
+# ✅ 출력
+for year in TEST_YEARS:
+    print_result_section(f"CROHME-HME {year}", result_log["CROHME"]["hme"][year])
+    print_result_section(f"CROHME-PME {year}", result_log["CROHME"]["pme"][year])
+
+print_result_section("IM2LATEX-PME", result_log["IM2LATEX"]["pme"])
 
 # ✅ 전체 결과 저장
 with open("test_results.json", "w") as f:

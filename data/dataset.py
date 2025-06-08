@@ -5,12 +5,11 @@ import torch
 
 
 class FormulaDataset(Dataset):
-    def __init__(self, image_dir, caption_path, transform=None, image_ext="bmp", vocab=None, add_ext_if_missing=True):
+    def __init__(self, image_dir, caption_path, transform=None, image_ext="bmp", vocab=None):
         self.image_dir = Path(image_dir)
         self.transform = transform
         self.image_ext = image_ext
         self.vocab = vocab
-        self.add_ext_if_missing = add_ext_if_missing
 
         self.samples = []
         with open(caption_path, "r", encoding="utf-8") as f:
@@ -20,8 +19,7 @@ class FormulaDataset(Dataset):
                     continue
                 file_id, latex = parts
 
-                # 확장자 자동 부여 여부 결정
-                if self.add_ext_if_missing and '.' not in file_id:
+                if '.' not in file_id:
                     filename = f"{file_id}.{self.image_ext}"
                 else:
                     filename = file_id
@@ -60,17 +58,21 @@ class FormulaDataset(Dataset):
         }
 
 class PairedFormulaDataset(Dataset):
-    def __init__(self, hme_dir, pme_dir, caption_path, transform_hme, transform_pme, vocab=None):
+    def __init__(self, hme_dir, pme_dir, caption_path, transform_hme, transform_pme, image_exts=["png", "png"], vocab=None):
         self.hme_dir = Path(hme_dir)
         self.pme_dir = Path(pme_dir)
         self.transform_hme = transform_hme
         self.transform_pme = transform_pme
         self.vocab = vocab
+        self.img_exts = image_exts
 
         self.samples = []
         with open(caption_path, "r") as f:
             for line in f:
-                img_name, formula = line.strip().split("\t")
+                parts = line.strip().split("\t")
+                if len(parts) != 2:
+                    continue
+                img_name, formula = parts 
                 self.samples.append((img_name, formula))
 
     def __len__(self):
@@ -89,8 +91,13 @@ class PairedFormulaDataset(Dataset):
     def __getitem__(self, idx):
         img_name, formula = self.samples[idx]
 
-        img_hme_path = self.hme_dir / img_name
-        img_pme_path = self.pme_dir / img_name
+        if '.' not in img_name:
+            img_hme_path = self.hme_dir / f"{img_name}.{self.img_exts[0]}"
+            img_pme_path = self.pme_dir / f"{img_name}.{self.img_exts[1]}"
+
+        else:
+            img_hme_path = self.hme_dir / img_name
+            img_pme_path = self.pme_dir / img_name
 
         img_hme = self._open_and_convert(img_hme_path)
         img_pme = self._open_and_convert(img_pme_path)

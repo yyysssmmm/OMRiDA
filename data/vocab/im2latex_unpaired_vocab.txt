@@ -120,6 +120,7 @@ Z
 \b
 \backslash
 \bar
+\begin
 \beta
 \bf
 \big
@@ -217,6 +218,7 @@ Z
 \i
 \ij
 \imath
+\in
 \infty
 \int
 \iota
@@ -260,6 +262,7 @@ Z
 \mapsto
 \mathaccent
 \mathbf
+\mathbin
 \mathcal
 \mathit
 \mathnormal
@@ -271,6 +274,7 @@ Z
 \mbox
 \medskip
 \mid
+\min
 \mit
 \mp
 \mu
@@ -287,6 +291,7 @@ Z
 \nonumber
 \normalsize
 \not
+\notin
 \nu
 \null
 \nulldelimiterspace
@@ -360,6 +365,7 @@ Z
 \sigma
 \sim
 \simeq
+\sin
 \sinh
 \sl
 \slash

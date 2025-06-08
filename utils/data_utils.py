@@ -26,33 +26,20 @@ class DynamicPadToSize:
             return img
 
 
-def get_formula_transform(image_type: str):
-
-    if image_type == "CROHME+IM2LATEX_hme":
-        return transforms.Compose([
-            DynamicPadToSize(target_size=(222, 1158), fill=255),
-            transforms.ToTensor(),
-            # transforms.Normalize(mean=[0.8946], std=[0.2815])
-        ])
-
-    elif image_type == "CROHME+IM2LATEX_pme":
-        return transforms.Compose([
-            DynamicPadToSize(target_size=(2339, 1654), fill=255),
-            transforms.Lambda(lambda img: TF.crop(img, top=300, left=450, height=1000, width=600)),
-            transforms.ToTensor(),
-            # transforms.Normalize(mean=[0.11], std=[0.235])
-        ])
-    
-    elif image_type == "unpaired_pme":
-        return transforms.Compose([
-            DynamicPadToSize(target_size=(2339, 1654), fill=255),
-            transforms.Lambda(lambda img: TF.crop(img, top=300, left=450, height=1000, width=600)),
-            transforms.ToTensor(),
-            # transforms.Normalize(mean=[3.7e-5], std=[0.0014])
-        ])
-    
-    else:
+def get_formula_transform(image_type: str, transform_config: dict):
+    cfg = transform_config.get(image_type)
+    if cfg is None:
         raise ValueError(f"Unsupported image_type: {image_type}")
+
+    target_size = tuple(cfg["target_size"])
+    mean = cfg["mean"]
+    std = cfg["std"]
+
+    return transforms.Compose([
+        DynamicPadToSize(target_size=target_size, fill=255),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=mean, std=std)
+    ])
 
 
 def formula_collate_fn(batch, pad_idx=0):

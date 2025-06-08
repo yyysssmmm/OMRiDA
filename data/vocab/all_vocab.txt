@@ -123,6 +123,7 @@ Z
 \amalg
 \approx
 \arccos
+\arcsin
 \arctan
 \arg
 \arraycolsep
@@ -135,6 +136,7 @@ Z
 \b
 \backslash
 \bar
+\begin
 \beta
 \bf
 \big
@@ -212,6 +214,7 @@ Z
 \dots
 \downarrow
 \ell
+\em
 \emph
 \emptyset
 \end
@@ -257,6 +260,7 @@ Z
 \i
 \ij
 \imath
+\in
 \inf
 \infty
 \int
@@ -309,6 +313,7 @@ Z
 \mapsto
 \mathaccent
 \mathbf
+\mathbin
 \mathcal
 \mathclose
 \mathit
@@ -327,6 +332,7 @@ Z
 \mbox
 \medskip
 \mid
+\min
 \mit
 \mkern
 \mp
@@ -347,6 +353,7 @@ Z
 \nonumber
 \normalsize
 \not
+\notin
 \nu
 \null
 \nulldelimiterspace
@@ -434,6 +441,7 @@ Z
 \sigma
 \sim
 \simeq
+\sin
 \sinh
 \skew
 \sl
