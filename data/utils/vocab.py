@@ -56,7 +56,7 @@ class Vocab:
     def save_to_txt(self, path: Path):
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, 'w', encoding='latin1') as f:
-            for token in sorted(self.idx2token):
+            for token in self.idx2token:
                 f.write(token + '\n')
 
     @classmethod
@@ -89,9 +89,9 @@ if __name__ == "__main__":
     # 📌 경로 설정
     crohme_dir = base_dir / "CROHME/data_crohme"
     im2latex_caption_dir = base_dir / "IM2LATEX/caption"
-    paired_caption_path = base_dir / "paired_CROHME+IM2LATEX/caption.txt"
-    unpaired_caption_path = base_dir / "IM2LATEX/caption/unpaired_caption.txt"
-    paired_IM2LATEX_caption_path = base_dir / "IM2LATEX/caption/hme_caption.txt"
+    unpaired_caption_path = base_dir / "preprocessed/test/pme/im2latex/caption.txt"
+    paired_CROHME_caption_path = base_dir / "preprocessed/train/paired/crohme/caption.txt"
+    paired_IM2LATEX_caption_path = base_dir / "preprocessed/train/paired/im2latex/caption.txt"
     vocab_dir = base_dir / "vocab"
 
     all_formulas = []
@@ -122,9 +122,9 @@ if __name__ == "__main__":
     # print(f" - tokens: {sorted(im2latex_vocab.idx2token)}\n")
     all_formulas += im2latex_formulas  
 
-    # ✅ PAIRED vocab (CROHME + IM2LATEX)
-    if paired_caption_path.exists():
-        paired_formulas = load_caption_formulas(paired_caption_path)
+    # ✅ PAIRED vocab (CROHME)
+    if paired_CROHME_caption_path .exists():
+        paired_formulas = load_caption_formulas(paired_CROHME_caption_path )
         paired_vocab = Vocab()
         paired_vocab.build_vocab(paired_formulas)
         paired_vocab.save_to_txt(vocab_dir / "paired_vocab.txt")
@@ -136,7 +136,7 @@ if __name__ == "__main__":
         print("⚠️ PAIRED caption.txt가 존재하지 않습니다.\n")
 
     # ✅ IM2LATEX PAIRED vocab
-    if paired_caption_path.exists():
+    if paired_IM2LATEX_caption_path.exists():
         paired_formulas = load_caption_formulas(paired_IM2LATEX_caption_path)
         paired_vocab = Vocab()
         paired_vocab.build_vocab(paired_formulas)
