@@ -2,7 +2,7 @@ experiment_name: "dla_baseline"
 
 # ✅ 데이터 경로
 data:
-  vocab: "data/vocab/all_vocab.txt"
+  vocab: "data/vocab/crohme_vocab.txt"
   paired:
     hme_img: "data/preprocessed/train/paired/crohme/hme"
     pme_img: "data/preprocessed/train/paired/crohme/pme"
@@ -38,19 +38,19 @@ training:
 # ✅ 이미지 전처리 설정
 transforms:
   paired_hme:
-    target_size: [222, 1158] # width, height 순서가 아니라 height, width 순서임에 유의 
-    mean: [0.0679]
-    std: [0.2503]
+    target_size: [481, 2116] # width, height 순서가 아니라 height, width 순서임에 유의 
+    mean: [0.0770]
+    std: [0.2633]
 
   paired_pme:
-    target_size: [64, 331]
-    mean: [0.8473]
-    std: [0.3539]
+    target_size: [125, 872]
+    mean: [0.8126]
+    std: [0.3817]
 
   unpaired:
     target_size: [2339, 1654]
     mean: [0.9994]
-    std: [0.0239]
+    std: [0.0246]
 
 
 # ✅ 테스트 설정
@@ -62,4 +62,5 @@ testing:
 misc:
   seed: 42
   device: "mps"   # "cuda" / "cpu"
-  checkpoint_path: "runs/dla_baseline_bs8_lr1.0_match1.0_schedStepLR10_0.5_seed42/checkpoints/best_model.pth"
+  checkpoint_path: "runs/dla_baseline_bs1_lr0.1_match1.0_schedStepLR10_0.5_seed42/batch_logs/epoch001_batch2965.pt"
+  batch_log_path: "runs/dla_baseline_bs1_lr0.1_match1.0_schedStepLR10_0.5_seed42/batch_logs/epoch001_batch2965.pt"

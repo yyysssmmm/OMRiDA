@@ -29,30 +29,37 @@ class CrossAttention(nn.Module):
         if (H1, W1) != (H2, W2):
             enc2_feats = self.resample_conv(enc2_feats)
 
-            if enc2_feats.device.type == 'mps':
-                try:
-                    # 먼저 adaptive 시도
-                    enc2_feats = F.adaptive_avg_pool2d(enc2_feats, output_size=(H1, W1))
-                except RuntimeError:
-                    # MPS에서 실패 시 fallback
-                    enc2_feats = F.interpolate(enc2_feats, size=(H1, W1), mode='bilinear', align_corners=False)
+            try:
+                # ✅ adaptive avg pool 우선 시도 (모든 디바이스 공통)
+                enc2_feats = F.adaptive_avg_pool2d(enc2_feats, output_size=(H1, W1))
+            except RuntimeError:
+                # ✅ 실패 시 fallback → interpolate
+                enc2_feats = F.interpolate(enc2_feats, size=(H1, W1), mode='bilinear', align_corners=False)
         else:
-            # CUDA나 CPU에선 그대로 adaptive 사용
+            # ✅ 동일한 경우에도 pooling으로 보정
             enc2_feats = F.adaptive_avg_pool2d(enc2_feats, output_size=(H1, W1))
 
+        # ✅ Query from enc1_feats
+        query = self.query_proj(enc1_feats)                      # (B, D, H1, W1)
+        query = query.flatten(2).transpose(1, 2)                 # (B, H1*W1, D)
 
-        query = self.query_proj(enc1_feats).view(B, -1, H1 * W1).transpose(1, 2)   # (B, H1*W1, D)
-        key   = self.key_proj(enc2_feats).view(B, -1, H1 * W1)                     # (B, D, H1*W1)
-        value = self.value_proj(enc2_feats).view(B, -1, H1 * W1).transpose(1, 2)   # (B, H1*W1, D)
+        # ✅ Key/Value from enc2_feats
+        key   = self.key_proj(enc2_feats).flatten(2)             # (B, D, H1*W1)
+        value = self.value_proj(enc2_feats).flatten(2).transpose(1, 2)  # (B, H1*W1, D)
 
-        attn_scores  = torch.bmm(query, key) / self.scale                          # (B, H1*W1, H1*W1)
-        attn_weights = F.softmax(attn_scores, dim=-1)                              # (B, H1*W1, H1*W1)
+        # ✅ Scaled Dot-Product Attention
+        attn_scores  = torch.bmm(query, key) / self.scale        # (B, H1*W1, H1*W1)
+        attn_weights = F.softmax(attn_scores, dim=-1)            # (B, H1*W1, H1*W1)
 
-        context = torch.bmm(attn_weights, value)                                   # (B, H1*W1, D)
-        context = context.mean(dim=1)                                              # (B, D)
+        # ✅ Context vector
+        context = torch.bmm(attn_weights, value)                 # (B, H1*W1, D)
+        context = context.mean(dim=1)                            # (B, D)
 
-        attn_map = attn_weights.mean(dim=2).view(B, H1, W1)                        # (B, H1, W1)
+        # ✅ Attention map (mean over attention targets)
+        attn_map = attn_weights.mean(dim=2).view(B, H1, W1)      # (B, H1, W1)
+
         return context, attn_map
+
 
 
 class DualCrossAttention(nn.Module):

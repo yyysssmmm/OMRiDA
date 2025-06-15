@@ -166,8 +166,9 @@ for epoch in range(1, EPOCHS + 1):
             "batch_idx": num_batches,
             "loss_dict": loss_dict,
             "loss": loss.item(),
-            "token_accuracy": acc
-        }, BATCH_LOG_DIR / f"epoch{epoch:03d}_batch{num_batches:03d}.pt")
+            "token_accuracy": acc,
+            "model_state_dict": model.state_dict() 
+        }, BATCH_LOG_DIR / f"epoch{epoch:03d}_batch{num_batches:03d}.pt"),
 
         loop.set_postfix(loss=loss.item(), acc=acc)
 

@@ -1,0 +1,59 @@
+{
+    "CROHME": {
+        "hme": {
+            "2014": {
+                "exprate_0": 0.0,
+                "exprate_1": 0.0,
+                "exprate_2": 0.0,
+                "exprate_3": 0.0,
+                "cer": 9.0177
+            },
+            "2016": {
+                "exprate_0": 0.0,
+                "exprate_1": 0.0,
+                "exprate_2": 0.0,
+                "exprate_3": 0.0,
+                "cer": 8.2984
+            },
+            "2019": {
+                "exprate_0": 0.0,
+                "exprate_1": 0.0,
+                "exprate_2": 0.0,
+                "exprate_3": 0.0,
+                "cer": 9.0788
+            }
+        },
+        "pme": {
+            "2014": {
+                "exprate_0": 0.0,
+                "exprate_1": 0.0,
+                "exprate_2": 0.0,
+                "exprate_3": 0.0,
+                "cer": 7.324
+            },
+            "2016": {
+                "exprate_0": 0.0,
+                "exprate_1": 0.0,
+                "exprate_2": 0.0,
+                "exprate_3": 0.0,
+                "cer": 6.7896
+            },
+            "2019": {
+                "exprate_0": 0.0,
+                "exprate_1": 0.0,
+                "exprate_2": 0.0,
+                "exprate_3": 0.0,
+                "cer": 7.1637
+            }
+        }
+    },
+    "IM2LATEX": {
+        "pme": {
+            "exprate_0": 0.0,
+            "exprate_1": 0.0,
+            "exprate_2": 0.0,
+            "exprate_3": 0.0,
+            "cer": 2.7539
+        }
+    }
+}

@@ -44,10 +44,10 @@ SOS_ID = vocab.token2idx["<sos>"]
 EOS_ID = vocab.token2idx["<eos>"]
 
 model_config = config["model"]
-unpaired_model = DLAModel(vocab_size=len(vocab), model_config=model_config, is_paired=False).to(DEVICE)
+unpaired_model = DLAModel(vocab_size=len(vocab), model_config=model_config).to(DEVICE)
 
 checkpoint = torch.load(CHECKPOINT_PATH, map_location=DEVICE)
-unpaired_model.load_state_dict(checkpoint["unpaired_model"])
+unpaired_model.load_state_dict(checkpoint["model"])
 unpaired_model.eval()
 
 # ✅ 평가 함수 정의

@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from torchvision import transforms
 
-def analyze_image_stats(image_dir, image_ext="png", sample_limit=100):
+def analyze_image_stats(image_dir, image_ext="png", sample_limit=1000000):
     image_dir = Path(image_dir)
     sizes = []
     means = []
@@ -27,6 +27,7 @@ def analyze_image_stats(image_dir, image_ext="png", sample_limit=100):
             print(f"❌ {img_path.name}: {e}")
 
     widths, heights = zip(*sizes)
+    print(len(sizes))
     print(f"Max size: {(np.max(widths), np.max(heights))}")
     print(f"min size: {(np.min(widths), np.min(heights))}")
     print(f"Mean size: {(np.mean(widths), np.mean(heights))}")
