@@ -8,7 +8,7 @@ class DualLoss(nn.Module):
 
     Loss = LD(Xh) + LD(Xp) + LD(X̄) + λ * Lmatch(Xh, Xp)
     """
-    def __init__(self, match_weight=1.0, ignore_index=0):
+    def __init__(self, match_weight=0.2, ignore_index=0):
         super().__init__()
         self.ce_loss = nn.CrossEntropyLoss(ignore_index=ignore_index)
         self.mse_loss = nn.MSELoss()
@@ -18,7 +18,7 @@ class DualLoss(nn.Module):
                 logits_h, targets_h,        # (B, T, V), (B, T)
                 logits_p, targets_p,        # (B, T, V), (B, T)
                 logits_up=None, targets_up=None,  # (B, T, V), (B, T)
-                context_h=None, context_p=None    # (B, T, C),d (B, T, C)
+                context_h=None, context_p=None    # (B, T, C), (B, T, C)
                ):
         """
         logits_*: unnormalized decoder outputs (B, T, V)

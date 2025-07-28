@@ -4,11 +4,11 @@ experiment_name: "dla_baseline"
 data:
   vocab: "data/vocab/crohme_vocab.txt"
   paired:
-    hme_img: "data/preprocessed/train/paired/crohme/hme"
-    pme_img: "data/preprocessed/train/paired/crohme/pme"
+    hme_img: "data/preprocessed/train/paired/crohme/hme_preprocessed"
+    pme_img: "data/preprocessed/train/paired/crohme/pme_preprocessed"
     caption: "data/preprocessed/train/paired/crohme/caption.txt"
   unpaired:
-    pme_img: "data/preprocessed/train/paired/im2latex/pme"
+    pme_img: "data/preprocessed/train/paired/im2latex/pme_cropped"
     caption: "data/preprocessed/train/paired/im2latex/caption.txt"
 
 # ✅ 모델 하이퍼파라미터
@@ -23,7 +23,7 @@ training:
   batch_size: 1
   epochs: 100
   learning_rate: 0.1
-  match_weight: 1.0
+  match_weight: 0.2
   optimizer: "adadelta"         
   grad_clip: 5.0
   early_stop_patience: 5
@@ -48,9 +48,9 @@ transforms:
     std: [0.3817]
 
   unpaired:
-    target_size: [2339, 1654]
-    mean: [0.9994]
-    std: [0.0246]
+    target_size: [209, 1362]
+    mean: [0.9228]
+    std: [0.2654]
 
 
 # ✅ 테스트 설정

@@ -1,4 +1,9 @@
 import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..","..")))
+
 import json
 import yaml
 import argparse
@@ -25,6 +30,8 @@ parser.add_argument("--config", type=str, default="config.yaml")
 args = parser.parse_args()
 config = load_config(args.config)
 
+base_dir = Path(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
+
 # ✅ 기본 설정값 로드
 set_seed(config["misc"]["seed"])
 IGNORE_IDX = config["training"]["ignore_idx"]
@@ -39,7 +46,7 @@ DEVICE = torch.device(config["misc"]["device"] if torch.backends.mps.is_availabl
 os.makedirs("preds", exist_ok=True)
 
 # ✅ vocab 및 모델 로드
-vocab = Vocab.load_from_txt(Path(VOCAB_PATH))
+vocab = Vocab.load_from_txt(base_dir / Path(VOCAB_PATH))
 SOS_ID = vocab.token2idx["<sos>"]
 EOS_ID = vocab.token2idx["<eos>"]
 

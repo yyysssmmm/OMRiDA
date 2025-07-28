@@ -5,7 +5,7 @@ import torch
 
 
 class FormulaDataset(Dataset):
-    def __init__(self, image_dir, caption_path, transform=None, image_ext="bmp", vocab=None):
+    def __init__(self, image_dir, caption_path, transform=None, image_ext="png", vocab=None):
         self.image_dir = Path(image_dir)
         self.transform = transform
         self.image_ext = image_ext
@@ -34,12 +34,7 @@ class FormulaDataset(Dataset):
 
     def __getitem__(self, idx):
         image_path, latex = self.samples[idx]
-        image = Image.open(image_path)
-
-        # 🛠 경고 제거용 추가 처리
-        if image.mode == "P":
-            image = image.convert("RGBA")
-        image = image.convert("RGB")
+        image = Image.open(image_path).convert('L')
 
         if self.transform:
             image = self.transform(image)
@@ -78,16 +73,6 @@ class PairedFormulaDataset(Dataset):
     def __len__(self):
         return len(self.samples)
 
-    def _open_and_convert(self, path: Path):
-        image = Image.open(path)
-
-        # 🛠 경고 방지 및 안정적인 채널 처리
-        if image.mode == "P":
-            image = image.convert("RGBA")
-        image = image.convert("RGB")
-
-        return image
-
     def __getitem__(self, idx):
         img_name, formula = self.samples[idx]
 
@@ -99,8 +84,8 @@ class PairedFormulaDataset(Dataset):
             img_hme_path = self.hme_dir / img_name
             img_pme_path = self.pme_dir / img_name
 
-        img_hme = self._open_and_convert(img_hme_path)
-        img_pme = self._open_and_convert(img_pme_path)
+        img_hme = Image.open(img_hme_path).convert('L')
+        img_pme = Image.open(img_pme_path).convert('L')
 
         if self.transform_hme:
             img_hme = self.transform_hme(img_hme)
@@ -115,4 +100,6 @@ class PairedFormulaDataset(Dataset):
             "img_pme": img_pme,
             "formula": formula_tensor
         }
+    
+    
 

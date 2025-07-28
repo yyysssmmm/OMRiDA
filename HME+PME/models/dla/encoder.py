@@ -26,6 +26,12 @@ class DenseNetEncoder(nn.Module):
         # densenet = densenet121(weights=DenseNet121_Weights.IMAGENET1K_V1)
         densenet = densenet121(weights=None)    # 이번 프로젝트는 imageNet 데이터에 비교하면 수식글씨로, imageNet 가중치가 방해될 수도 있어 사전학습 가중치 없이 불러오는게 유리할수도 있음
 
+        # ✅ First conv layer 수정: in_channels=1로 (우리 프로젝트에 맞춰 gpu 메모리 소모 줄이기 위해 그레이스케일로 변환)
+        densenet.features.conv0 = nn.Conv2d(
+            in_channels=1, out_channels=64,
+            kernel_size=7, stride=2, padding=3, bias=False
+        )
+
         # Remove classification head
         features = list(densenet.features.children())
 

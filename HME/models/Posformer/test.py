@@ -93,6 +93,11 @@ if __name__ == "__main__":
         with open(path, "r") as f:
             return yaml.safe_load(f)
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", type=str, default=os.path.abspath(os.path.join(base_dir, "../../config.yaml")))
+    args = parser.parse_args()
+    config = load_config(args.config)
+
     for category in TEST_CATEGORY:
         main(category, ckp_path)
 

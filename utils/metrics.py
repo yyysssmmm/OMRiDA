@@ -43,7 +43,6 @@ def cer(preds, targets):
     return total_distance / total_length if total_length > 0 else 0
 
 
-
 def levenshtein_distance(seq1, seq2):
     """
     기본적인 편집 거리 계산 함수 (DP 기반).

@@ -67,7 +67,7 @@ DEVICE = torch.device(config["misc"]["device"] if torch.backends.mps.is_availabl
 print(f"✅ Using device: {DEVICE}")
 
 # ✅ 시드 고정
-set_seed(config["misc"]["seed"])
+# set_seed(config["misc"]["seed"])
 
 # ✅ vocab
 
@@ -87,14 +87,12 @@ paired_dataset = PairedFormulaDataset(
     caption_path=paired_caption_path,
     transform_hme=hme_paired_transform,
     transform_pme=pme_paired_transform,
-    image_exts=["bmp", "png"],
     vocab=vocab
 )
 unpaired_dataset = FormulaDataset(
     image_dir=base_dir / Path(config["data"]["unpaired"]["pme_img"]),
     caption_path=base_dir / Path(config["data"]["unpaired"]["caption"]),
     transform=unpaired_transform,
-    image_ext="png",
     vocab=vocab
 )
 
@@ -105,114 +103,127 @@ unpaired_loader = DataLoader(unpaired_dataset, BATCH_SIZE, shuffle=True, collate
 paired_loader = DataLoader(paired_dataset, BATCH_SIZE, shuffle=True, collate_fn=collate_fn_2)
 
 
-# ✅ 모델, 손실함수, 옵티마이저
-model = DLAModel(vocab_size=vocab_size, model_config=config["model"]).to(DEVICE)
-criterion = DualLoss(match_weight=MATCH_WEIGHT, ignore_index=IGNORE_IDX)
+# ✅ 데이터 확인
 
-# 🔧 optimizer 선택
-optimizer_name = config["training"].get("optimizer", "adadelta").lower()
-params = model.parameters()
-if optimizer_name == "adam":
-    optimizer = torch.optim.Adam(params, lr=LEARNING_RATE)
-elif optimizer_name == "sgd":
-    optimizer = torch.optim.SGD(params, lr=LEARNING_RATE, momentum=0.9)
-elif optimizer_name == "adadelta":
-    optimizer = torch.optim.Adadelta(params, lr=LEARNING_RATE)
-else:
-    raise ValueError(f"❌ Unknown optimizer: {optimizer_name}")
+import matplotlib.pyplot as plt
 
-# ✅ learning rate scheduler
-scheduler = None
-sched_cfg = config["training"]["scheduler"]
-if sched_cfg["use"]:
-    if sched_cfg["type"] == "StepLR":
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=sched_cfg["step_size"], gamma=sched_cfg["gamma"])
-    else:
-        raise NotImplementedError(f"{sched_cfg['type']} scheduler is not supported.")
+for i in range(10):
+    plt.imshow(unpaired_dataset[i]['image'].squeeze().cpu().numpy(), cmap='gray')
+    plt.show()
+    plt.imshow(paired_dataset[i]['img_pme'].squeeze().cpu().numpy(), cmap='gray')
+    plt.show()
+    plt.imshow(paired_dataset[i]['img_hme'].squeeze().cpu().numpy(), cmap='gray')
+    plt.show()
 
-# ✅ 학습 루프
-best_loss = float("inf")
-patience = 0
-loss_history, log_dict = [], {"train": []}
-unpaired_iter = iter(unpaired_loader)
 
-for epoch in range(1, EPOCHS + 1):
-    model.train()
-    total_loss, total_acc, num_batches = 0.0, 0.0, 0
+# # ✅ 모델, 손실함수, 옵티마이저
+# model = DLAModel(vocab_size=vocab_size, model_config=config["model"]).to(DEVICE)
+# criterion = DualLoss(match_weight=MATCH_WEIGHT, ignore_index=IGNORE_IDX)
 
-    loop = tqdm(paired_loader, desc=f"Epoch {epoch}/{EPOCHS}", leave=True)
-    for batch_pair in loop:
-        try:
-            batch_up = next(unpaired_iter)
-        except StopIteration:
-            unpaired_iter = iter(unpaired_loader)
-            batch_up = next(unpaired_iter)
+# # 🔧 optimizer 선택
+# optimizer_name = config["training"].get("optimizer", "adadelta").lower()
+# params = model.parameters()
+# if optimizer_name == "adam":
+#     optimizer = torch.optim.Adam(params, lr=LEARNING_RATE)
+# elif optimizer_name == "sgd":
+#     optimizer = torch.optim.SGD(params, lr=LEARNING_RATE, momentum=0.9)
+# elif optimizer_name == "adadelta":
+#     optimizer = torch.optim.Adadelta(params, lr=LEARNING_RATE)
+# else:
+#     raise ValueError(f"❌ Unknown optimizer: {optimizer_name}")
 
-        img_pme, img_hme = batch_pair["img_pme"].to(DEVICE), batch_pair["img_hme"].to(DEVICE)
-        tgt = batch_pair["formula"].to(DEVICE)
-        img_up, tgt_up = batch_up["image"].to(DEVICE), batch_up["formula"].to(DEVICE)
+# # ✅ learning rate scheduler
+# scheduler = None
+# sched_cfg = config["training"]["scheduler"]
+# if sched_cfg["use"]:
+#     if sched_cfg["type"] == "StepLR":
+#         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=sched_cfg["step_size"], gamma=sched_cfg["gamma"])
+#     else:
+#         raise NotImplementedError(f"{sched_cfg['type']} scheduler is not supported.")
 
-        logits_p, logits_h, context_p, context_h = model(img_pme, img_hme, tgt, tgt)
-        logits_up, _, _, _ = model(img_up, None, tgt_up, None)
+# # ✅ 학습 루프
+# best_loss = float("inf")
+# patience = 0
+# loss_history, log_dict = [], {"train": []}
+# unpaired_iter = iter(unpaired_loader)
 
-        loss, loss_dict = criterion(logits_h, tgt, logits_p, tgt, logits_up, tgt_up, context_h, context_p)
+# for epoch in range(1, EPOCHS + 1):
+#     model.train()
+#     total_loss, total_acc, num_batches = 0.0, 0.0, 0
 
-        optimizer.zero_grad()
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(params, GRAD_CLIP)
-        optimizer.step()
+#     loop = tqdm(paired_loader, desc=f"Epoch {epoch}/{EPOCHS}", leave=True)
+#     for batch_pair in loop:
+#         try:
+#             batch_up = next(unpaired_iter)
+#         except StopIteration:
+#             unpaired_iter = iter(unpaired_loader)
+#             batch_up = next(unpaired_iter)
 
-        preds = logits_h.argmax(dim=-1)
-        acc = token_accuracy(preds, tgt[:, 1:])
+#         img_pme, img_hme = batch_pair["img_pme"].to(DEVICE), batch_pair["img_hme"].to(DEVICE)
+#         tgt = batch_pair["formula"].to(DEVICE)
+#         img_up, tgt_up = batch_up["image"].to(DEVICE), batch_up["formula"].to(DEVICE)
 
-        total_loss += loss.item()
-        total_acc += acc
-        num_batches += 1
+#         logits_p, logits_h, context_p, context_h = model(img_pme, img_hme, tgt, tgt)
+#         logits_up, _, _, _ = model(img_up, None, tgt_up, None)
 
-        torch.save({
-            "epoch": epoch,
-            "batch_idx": num_batches,
-            "loss_dict": loss_dict,
-            "loss": loss.item(),
-            "token_accuracy": acc,
-            "model_state_dict": model.state_dict() 
-        }, BATCH_LOG_DIR / f"epoch{epoch:03d}_batch{num_batches:03d}.pt"),
+#         loss, loss_dict = criterion(logits_h, tgt, logits_p, tgt, logits_up, tgt_up, context_h, context_p)
 
-        loop.set_postfix(loss=loss.item(), acc=acc)
+#         optimizer.zero_grad()
+#         loss.backward()
+#         torch.nn.utils.clip_grad_norm_(params, GRAD_CLIP)
+#         optimizer.step()
 
-    if num_batches == 0:
-        print("⚠️ No batch processed.")
-        continue
+#         preds = logits_h.argmax(dim=-1)
+#         acc = token_accuracy(preds, tgt[:, 1:])
 
-    avg_loss = total_loss / num_batches
-    avg_acc = total_acc / num_batches
-    print(f"\n📊 [Epoch {epoch}] Loss: {avg_loss:.4f}, Token Acc: {avg_acc:.4f}")
+#         total_loss += loss.item()
+#         total_acc += acc
+#         num_batches += 1
 
-    log_dict["train"].append({
-        "epoch": epoch, "loss": avg_loss, "token_accuracy": avg_acc
-    })
-    loss_history.append(avg_loss)
+#         torch.save({
+#             "epoch": epoch,
+#             "batch_idx": num_batches,
+#             "loss_dict": loss_dict,
+#             "loss": loss.item(),
+#             "token_accuracy": acc,
+#             "model_state_dict": model.state_dict() 
+#         }, BATCH_LOG_DIR / f"epoch{epoch:03d}_batch{num_batches:03d}.pt"),
 
-    if scheduler:
-        scheduler.step()
+#         loop.set_postfix(loss=loss.item(), acc=acc)
 
-    if epoch == 1 or avg_loss < best_loss:
-        best_loss = avg_loss
-        patience = 0
-        torch.save({
-            "model": model.state_dict()
-        }, SAVE_DIR / "best_model.pth")
-        print("🧠 Best model saved!")
-    else:
-        patience += 1
-        if patience >= PATIENCE_THRESHOLD:
-            print(f"🛑 Early stopping at epoch {epoch}")
-            break
+#     if num_batches == 0:
+#         print("⚠️ No batch processed.")
+#         continue
 
-# ✅ 최종 저장
-save_log(log_dict, save_path=SAVE_ROOT / "train_log.json")
-plot_loss_curve(loss_history, save_path=SAVE_ROOT / "loss_curve.png")
-torch.save({
-    "model": model.state_dict()
-}, SAVE_DIR / "final_model.pth")
-print("✅ 최종 모델 저장 완료!")
+#     avg_loss = total_loss / num_batches
+#     avg_acc = total_acc / num_batches
+#     print(f"\n📊 [Epoch {epoch}] Loss: {avg_loss:.4f}, Token Acc: {avg_acc:.4f}")
+
+#     log_dict["train"].append({
+#         "epoch": epoch, "loss": avg_loss, "token_accuracy": avg_acc
+#     })
+#     loss_history.append(avg_loss)
+
+#     if scheduler:
+#         scheduler.step()
+
+#     if epoch == 1 or avg_loss < best_loss:
+#         best_loss = avg_loss
+#         patience = 0
+#         torch.save({
+#             "model": model.state_dict()
+#         }, SAVE_DIR / "best_model.pth")
+#         print("🧠 Best model saved!")
+#     else:
+#         patience += 1
+#         if patience >= PATIENCE_THRESHOLD:
+#             print(f"🛑 Early stopping at epoch {epoch}")
+#             break
+
+# # ✅ 최종 저장
+# save_log(log_dict, save_path=SAVE_ROOT / "train_log.json")
+# plot_loss_curve(loss_history, save_path=SAVE_ROOT / "loss_curve.png")
+# torch.save({
+#     "model": model.state_dict()
+# }, SAVE_DIR / "final_model.pth")
+# print("✅ 최종 모델 저장 완료!")
