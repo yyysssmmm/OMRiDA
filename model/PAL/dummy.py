@@ -25,8 +25,8 @@ import shutil
 # 경로 설정
 base_dir = "C:/Users/sophi/OneDrive/바탕 화면/Folder/2025 HYU/인공지능프로젝트/data/crohme"
 caption_path = os.path.join(base_dir, "dummy/caption.txt")
-crohme = os.path.join(base_dir, "hme_preprocessed")
-cropme = os.path.join(base_dir, "pme_preprocessed")
+crohme = os.path.join(base_dir, "hme_preprocessed_resized")
+cropme = os.path.join(base_dir, "pme_preprocessed_resized")
 crohme_dummy = os.path.join(base_dir, "dummy/hme_preprocessed")
 cropme_dummy = os.path.join(base_dir, "dummy/pme_preprocessed")
 os.makedirs(crohme_dummy, exist_ok=True)

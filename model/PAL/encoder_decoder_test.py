@@ -2,44 +2,57 @@ import os
 import cv2
 import numpy as np
 import torch
+
 from multi_directional_encoder import PALEncoder
 from conv_attention_decoder import PALDecoder
 
-# 한글 경로 읽기
 def imread_unicode(path, flags=cv2.IMREAD_GRAYSCALE):
     stream = np.fromfile(path, dtype=np.uint8)
-    img = cv2.imdecode(stream, flags)
-    return img
+    return cv2.imdecode(stream, flags)
 
-# Encoder 테스트
-encoder = PALEncoder()
-encoder.eval()
+# 1) Encoder
+encoder = PALEncoder().eval()
 
-base_dir = "C:/Users/sophi/OneDrive/바탕 화면/Folder/2025 HYU/인공지능프로젝트/data/crohme/dummy"
-img_path = os.path.join(base_dir, "hme_preprocessed")
-
-# 이미지 로딩
-image_path = os.path.normpath(os.path.join(img_path,"90_carlos.png"))  # 예시 파일명
+base_dir = r"C:/Users/sophi/OneDrive/바탕 화면/Folder/2025 HYU/인공지능프로젝트/data/crohme/dummy"
+img_path  = os.path.join(base_dir, "hme_preprocessed")
+image_path = os.path.normpath(os.path.join(img_path, "90_carlos.png"))
 img = imread_unicode(image_path)
-
 if img is None:
-    print("Image not found!")
-else:
-    # 전처리: 정규화 및 차원 확장
-    img_tensor = torch.from_numpy(img).float() / 255.0  # [0, 1] 정규화
-    img_tensor = img_tensor.unsqueeze(0).unsqueeze(0)   # (1, 1, H, W)
+    raise FileNotFoundError(f"Image not found: {image_path}")
 
-    with torch.no_grad():
-        out = encoder(img_tensor)  # (1, T, D)
-        print("Original image shape: ",img.shape)
-        print("Input tensor shape: ", img_tensor.shape)
-        print("Encoder output shape:", out.shape)
+# (H,W) -> (B=1, C=1, H, W), [0,1]
+img_tensor = torch.from_numpy(img).float().div(255.0).unsqueeze(0).unsqueeze(0)
 
-# Decoder 테스트
-decoder = PALDecoder(d_model=256, vocab_size=30522)
-decoder.eval()
-
-# encoder 출력 그대로 사용
 with torch.no_grad():
-    logits = decoder(out)
+    enc_feat = encoder(img_tensor)   # (B, D, H', W')
+    print("Original image shape:", img.shape)
+    print("Input tensor shape  :", img_tensor.shape)
+    print("Encoder feature map :", enc_feat.shape)
+
+# 2) 2D -> 시퀀스(열 기준): (B, D, H', W') -> (B, N, D)
+if enc_feat.dim() == 4:
+    B, D, Hp, Wp = enc_feat.shape
+    enc_seq = enc_feat.permute(0, 3, 2, 1).contiguous().view(B, Wp * Hp, D)  # (B, N, D)
+elif enc_feat.dim() == 3:
+    enc_seq = enc_feat
+    B, N, D = enc_seq.shape
+else:
+    raise RuntimeError(f"Unexpected encoder output shape: {enc_feat.shape}")
+
+B, N, D = enc_seq.shape
+print("Encoder seq shape: ", enc_seq.shape)
+
+# 3) Decoder
+V = 30522
+L = 20
+BOS_ID = 1
+max_enc_T = max(8192, N + 8)
+
+decoder = PALDecoder(vocab_size=V, d_model=D, max_enc_T=max_enc_T).eval()
+tgt_input_ids = torch.full((B, L), BOS_ID, dtype=torch.long)
+
+with torch.no_grad():
+    logits = decoder(enc_seq, tgt_input_ids)  # (B, L, V)
     print("Decoder output shape:", logits.shape)
+    assert logits.shape == (B, L, V)
+    assert torch.isfinite(logits).all(), "Got NaN/Inf in logits"
