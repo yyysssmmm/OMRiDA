@@ -1,0 +1,30 @@
+2009213-137-123	0 . 6
+200926-1617-71	\sqrt { h }
+2009212-1031-24	2 . 9 9
+200926-1550-65	\sum q
+200923-1251-88	B ^ { V }
+200924-1331-104	V
+200923-1553-195	j
+200923-1553-101	P E
+200922-949-52	\sqrt { \gamma }
+200926-1550-144	t
+200922-1017-109	\cdots + r B - N
+formulaire012-equation074	f ( u _ { 1 } ) = u _ { 2 }
+formulaire032-equation021	n = 1 5 0 0
+200923-1253-183	\sqrt { \sum b + \phi }
+2009210-947-132	- \int \limits _ { z } ^ { j } n d X
+200923-1251-138	8 . 5 + ( r ) ^ { b }
+formulaire012-equation028	\alpha \rightarrow f ( \alpha )
+200924-1331-267	\sum \cdots + d
+90_carlos	y = r \sin \theta
+2009213-137-164	E + T ( S )
+formulaire037-equation022	w _ { i } = k - a z _ { i } + b z
+TrainData1_6_sub_19	x = \frac { - b \pm \sqrt { b ^ { 2 } - 4 a c } } { 2 a }
+110_leissi	\frac { 1 } { \frac { 1 } { 2 } ( \frac { 1 } { a } + \frac { 1 } { b } ) } = \frac { 2 a b } { a + b }
+MfrDB2158	1 + \tan ^ { 2 } y = \frac { 1 } { \cos ^ { 2 } y }
+118_miguel	P ( x ) = \sum \limits _ { i = 0 } ^ { n } a _ { j } x ^ { j }
+formulaire021-equation027	\lim \limits _ { x \rightarrow + \infty } \sqrt { x } = + \infty
+formulaire030-equation003	0 = \int \limits _ { a } ^ { a } f ( x ) d x = \int \limits _ { a } ^ { c } f ( x ) d x + \int \limits _ { c } ^ { a } f ( x ) d x
+MfrDB1306	\cos ^ { 3 } y = \frac { 1 } { 4 } ( \cos 3 y + 3 \cos y )
+MfrDB2162	\cos ^ { 3 } y = \frac { 1 } { 4 } ( \cos 3 y + 3 \cos y )
+TrainData2_20_sub_51	\lim \limits _ { x \rightarrow \frac { \pi } { 2 } + 0 } \tan x = - \infty
