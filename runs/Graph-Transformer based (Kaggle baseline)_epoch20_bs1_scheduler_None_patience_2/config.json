@@ -1,0 +1,50 @@
+{
+  "img_size": [
+    128,
+    768
+  ],
+  "pad_idx": 112,
+  "eos_idx": 1,
+  "data": {
+    "crohme": {
+      "hme_img": "data/preprocessed/train/paired/crohme/hme_preprocessed",
+      "pme_img": "data/preprocessed/train/paired/crohme/pme_preprocessed",
+      "caption": "data/preprocessed/train/paired/crohme/caption.txt"
+    },
+    "im2latex": {
+      "hme_img": "data/preprocessed/train/paired/im2latex/hme_img_train",
+      "pme_img": "data/preprocessed/train/paired/im2latex/pme_img_train",
+      "caption": "data/preprocessed/train/paired/im2latex/caption_train.txt"
+    }
+  },
+  "model": {
+    "vocab_size": 112,
+    "encoder_emb_dim": 256,
+    "decoder_emb_dim": 256,
+    "decoder_hidden_dim": 512
+  },
+  "training": {
+    "batch_size": 1,
+    "epochs": 20,
+    "learning_rate": 0.0001,
+    "match_weight": 0.2,
+    "optimizer": "adadelta",
+    "weight_decay": 0.0001,
+    "grad_clip": 1.0,
+    "tf_ratio": 0.5,
+    "early_stop_patience": 2
+  },
+  "testing": {
+    "max_len": 150
+  },
+  "experiment_name": "Graph-Transformer based (Kaggle baseline)_epoch20_bs1_scheduler_None_patience_2",
+  "paths": {
+    "best_ckpt": "runs/Graph-Transformer based (Kaggle baseline)_epoch20_bs1_scheduler_None_patience_2/best_model.pth",
+    "last_ckpt": "runs/Graph-Transformer based (Kaggle baseline)_epoch20_bs1_scheduler_None_patience_2/last_model.pth",
+    "train_log_json": "runs/Graph-Transformer based (Kaggle baseline)_epoch20_bs1_scheduler_None_patience_2/train_log.json",
+    "CFG": "runs/Graph-Transformer based (Kaggle baseline)_epoch20_bs1_scheduler_None_patience_2/config.json"
+  },
+  "scheduler": {
+    "name": null
+  }
+}
