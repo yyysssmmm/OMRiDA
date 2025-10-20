@@ -1,0 +1,51 @@
+{
+  "img_size": [
+    256,
+    512
+  ],
+  "pad_idx": 112,
+  "sos_idx": 0,
+  "eos_idx": 1,
+  "data": {
+    "crohme": {
+      "hme_img": "data/preprocessed/train/paired/crohme/hme_preprocessed",
+      "pme_img": "data/preprocessed/train/paired/crohme/pme_preprocessed",
+      "caption": "data/preprocessed/train/paired/crohme/caption.txt"
+    },
+    "im2latex": {
+      "hme_img": "data/preprocessed/train/paired/im2latex/hme_img_train",
+      "pme_img": "data/preprocessed/train/paired/im2latex/pme_img_train",
+      "caption": "data/preprocessed/train/paired/im2latex/caption_train.txt"
+    }
+  },
+  "model": {
+    "vocab_size": 112,
+    "encoder_emb_dim": 256,
+    "decoder_emb_dim": 256,
+    "decoder_hidden_dim": 512
+  },
+  "training": {
+    "batch_size": 16,
+    "epochs": 20,
+    "learning_rate": 0.001,
+    "match_weight": 0.2,
+    "optimizer": "adamw",
+    "weight_decay": 0.0001,
+    "grad_clip": 1.0,
+    "tf_ratio": 0.5,
+    "early_stop_patience": 3
+  },
+  "testing": {
+    "max_len": 150
+  },
+  "experiment_name": "NAVER winner (Efficient SATRN) - 256x512 resize, 3 channels_epoch20_patience_3_bs16_scheduler_circularlrbeta_minLR_0.0005_maxLR_0.0005",
+  "paths": {
+    "best_ckpt": "runs/NAVER winner (Efficient SATRN) - 256x512 resize, 3 channels_epoch20_patience_3_bs16_scheduler_circularlrbeta_minLR_0.0005_maxLR_0.0005/best_model.pth",
+    "last_ckpt": "runs/NAVER winner (Efficient SATRN) - 256x512 resize, 3 channels_epoch20_patience_3_bs16_scheduler_circularlrbeta_minLR_0.0005_maxLR_0.0005/last_model.pth",
+    "train_log_json": "runs/NAVER winner (Efficient SATRN) - 256x512 resize, 3 channels_epoch20_patience_3_bs16_scheduler_circularlrbeta_minLR_0.0005_maxLR_0.0005/train_log.json",
+    "CFG": "runs/NAVER winner (Efficient SATRN) - 256x512 resize, 3 channels_epoch20_patience_3_bs16_scheduler_circularlrbeta_minLR_0.0005_maxLR_0.0005/config.json"
+  },
+  "scheduler": {
+    "name": "circularlrbeta"
+  }
+}
